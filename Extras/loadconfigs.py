@@ -2,17 +2,21 @@ import torchvision.transforms as T
 import torch
 
 M_SIAMESE_PATH = "cache/DEPTH_10_MOTION_SIAMESE_BEST.ckpt"
-S_SIAMESE_PATH = "cache/DEPTH_10_SPATIAL_SIAMESE_BEST.ckpt"
+S_SIAMESE_PATH = "cache/DEPTH_10_SPATIAL_SIAMESE.ckpt"
 MC_SIAMESE_PATH = "cache/MOTION_SIAMESE_CLASSIFIER.ckpt"
 SC_SIAMESE_PATH = "cache/SPATIAL_SIAMESE_CLASSIFIER.ckpt"
 
 MC_PATH = "cache/MOTION_CLASSIFIER.ckpt"
 SC_PATH = "cache/SPATIAL_CLASSIFIER.ckpt"
 
-SINGLE_VIDEO_POLICY = False
+SINGLE_VIDEO_POLICY = True
 
-# minimum number of videos per subclass
-BALANCE_VIDEOS = 4
+# minimum number of videos per subclass, the minimum number is 4
+BALANCE_VIDEOS = 10
+
+FEATURE_AGGREGATOR = True
+
+ENC_SEQ_DIM = 128
 
 DIMENSION = 768
 IMG_W = 640

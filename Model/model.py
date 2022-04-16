@@ -6,13 +6,36 @@ from torch.nn import TransformerEncoder, TransformerEncoderLayer
 import pandas as pd
 from equilib import equi2cube as getCubes
 from Utils.utils import maprange
+from functorch import vmap
 
-from Extras.loadconfigs import NUM_CLASSES, DEPTH, EMB_DIM, TANGENT_PATCH
+from Extras.loadconfigs import NUM_CLASSES, DEPTH, EMB_DIM, TANGENT_PATCH, FEATURE_AGGREGATOR, ENC_SEQ_DIM
 
 def flattenRots(rots):
     for r,value in rots.items():
         rots[r] = value.detach().cpu().numpy().tolist()
     return pd.DataFrame(rots).to_dict(orient='records')
+
+class PatchWiseFeatureAggregator(nn.Module):
+    def __init__(self, in_channels = 3, depth = 10):
+        super(PatchWiseFeatureAggregator, self).__init__()
+        self.patchFeatures = nn.Sequential(nn.Conv3d(in_channels=in_channels, out_channels=8, kernel_size=(1,1,1)),
+                                           nn.ReLU(inplace=True),
+                                           nn.Conv3d(in_channels=8, out_channels=16, kernel_size=(depth,3,3)),
+                                           nn.ReLU(inplace=True),
+                                           nn.MaxPool3d(kernel_size=(1,3,3), stride = (1,2,2)),
+                                           nn.Conv3d(in_channels=16, out_channels=32, kernel_size=(1,3,3)),
+                                           nn.ReLU(inplace=True),
+                                           nn.MaxPool3d(kernel_size=(1,3,3), stride = (1,2,2)),
+                                           nn.Conv3d(in_channels=32, out_channels=64, kernel_size=(1,3,3)),
+                                           nn.ReLU(inplace=True),
+                                           nn.MaxPool3d(kernel_size=(1,3,3), stride = (1,2,2)),
+                                           nn.Conv3d(in_channels=64, out_channels=ENC_SEQ_DIM, kernel_size=(1,1,1)),
+                                           nn.ReLU(inplace=True),
+                                           nn.MaxPool3d(kernel_size=(1,5,5)),
+                                           nn.Flatten())
+    def forward(self, x):
+        return self.patchFeatures(x)
+        
 
 class PerspectivePatch(nn.Module):
     def __init__(self, in_channels = 3):
@@ -32,7 +55,7 @@ class PerspectivePatch(nn.Module):
                                 )
             self.norm = torch.nn.BatchNorm2d(EMB_DIM, eps=1e-05, momentum=0.1, affine=True)
         
-        self.act = nn.Sigmoid()
+        self.act = nn.ReLU()
     
     def forward(self, x):
         x = self.patcher(x)
@@ -74,6 +97,8 @@ class Stream(nn.Module):
                ):
         super(Stream, self).__init__()
         self.d_model = EMB_DIM
+        if FEATURE_AGGREGATOR:
+            self.patchFeatures = PatchWiseFeatureAggregator(in_channels = in_channels, depth = DEPTH)
         self.posEncoding = PositionalEncoding(d_model=EMB_DIM)
         self.patcher = PerspectivePatch(in_channels=in_channels)
         self.encoder_1 = TransformerEncoderLayer(d_model = EMB_DIM, 
@@ -111,10 +136,29 @@ class Stream(nn.Module):
             else:
                 raise Exception(f"Mode must be in [flo,img], but provided {kwargs['mode']}")
         
-        x = self.patcher(x)
+        
+        if FEATURE_AGGREGATOR:
+            f = vmap(self.patchFeatures, in_dims = 4)(x.unfold(4, x.size(3),x.size(3))).permute(1,2,0)#6-B-SEQ_EMB_EDIM -> B-SEQ_EMB_EDIM-6
+            x = self.patcher(x)# note x now will be B-6-EMBEDDIM
+            x = torch.einsum('ijk,ikm->ijm', f, x)
+            x = torch.nn.ReLU()(x)
+        else:
+            x = self.patcher(x)
+            x = torch.nn.ReLU()(x)
+            
         x = self.posEncoding(x)
+        
         x = self.encoder_1(x)
+        x = torch.nn.ReLU()(x)
+        
         x = self.encoder_2(x)
+        x = torch.nn.ReLU()(x)
+        
+        if FEATURE_AGGREGATOR:
+            #f -> 4-128-6
+            #x -> 4-128-768
+            x = torch.einsum('ijk,ijm->ikm',f,x)
+            x = torch.nn.ReLU()(x)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
         return x
