@@ -1,0 +1,18 @@
+               precision    recall  f1-score   support
+
+    desk_work       0.16      1.00      0.27        35
+      driving       0.00      0.00      0.00        20
+        lunch       0.00      0.00      0.00        17
+  office_talk       0.00      0.00      0.00        21
+    ping-pong       0.00      0.00      0.00        20
+playing_cards       0.00      0.00      0.00        12
+ playing_pool       0.00      0.00      0.00        28
+      running       0.00      0.00      0.00         9
+      sitting       0.00      0.00      0.00        17
+       stairs       0.00      0.00      0.00        20
+     standing       0.00      0.00      0.00         8
+      walking       0.00      0.00      0.00        17
+
+     accuracy                           0.16       224
+    macro avg       0.01      0.08      0.02       224
+ weighted avg       0.02      0.16      0.04       224

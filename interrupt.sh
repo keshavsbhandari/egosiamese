@@ -1,0 +1,1 @@
+echo -n "stop">Extras/stopflag.txt
