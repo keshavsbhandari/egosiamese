@@ -27,7 +27,7 @@ import seaborn as sns
 class LTNClassifier(pl.LightningModule):
     def __init__(self, 
                  streamtype = 'img',
-                 lr = 1e-3,
+                 lr = 1e-6,
                  truncate_train = None,
                  truncate_val = None
                  ):
@@ -54,10 +54,10 @@ class LTNClassifier(pl.LightningModule):
     
     def configure_optimizers(self):
         # optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr, momentum=0.9, weight_decay=2)
-        optimizer = torch.optim.AdamW(self.model.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0.01, amsgrad=False)
+        optimizer = torch.optim.AdamW(self.model.parameters(), lr=0.001, betas=(0.5, 0.599), eps=1e-08, weight_decay=0.001, amsgrad=False)
         return {
             "optimizer":optimizer,
-            "lr_scheduler":torch.optim.lr_scheduler.StepLR(optimizer, 1.0, gamma=0.95),
+            "lr_scheduler":torch.optim.lr_scheduler.StepLR(optimizer, 1.0, gamma=0.895),
             "interval":"epoch",
             "monitor":"val_loss",
             "frequency":1,
@@ -83,9 +83,9 @@ class LTNClassifier(pl.LightningModule):
         self.train_accuracy_K3(outputs['preds'], outputs['target'])
         self.train_accuracy_K5(outputs['preds'], outputs['target'])
         
-        self.log("Accuracy/train_acc_K1", self.train_accuracy_K1, on_step=True, on_epoch=False, prog_bar = True)
-        self.log("Accuracy/train_acc_K3", self.train_accuracy_K3, on_step=True, on_epoch=False, prog_bar = True)
-        self.log("Accuracy/train_acc_K5", self.train_accuracy_K5, on_step=True, on_epoch=False, prog_bar = True)
+        self.log("Accuracy/train_acc_K1", self.train_accuracy_K1, on_step=True, on_epoch=True, prog_bar = True)
+        self.log("Accuracy/train_acc_K3", self.train_accuracy_K3, on_step=True, on_epoch=True, prog_bar = True)
+        self.log("Accuracy/train_acc_K5", self.train_accuracy_K5, on_step=True, on_epoch=True, prog_bar = True)
     
     def validation_step(self, batch, batch_idx):
         stopExec()
@@ -108,9 +108,9 @@ class LTNClassifier(pl.LightningModule):
         self.val_accuracy_K3(outputs['preds'], outputs['target'])
         self.val_accuracy_K5(outputs['preds'], outputs['target'])
         
-        self.log("Accuracy/val_acc_K1", self.val_accuracy_K1, on_step=True, on_epoch=False, prog_bar = True, sync_dist = True)
-        self.log("Accuracy/val_acc_K3", self.val_accuracy_K3, on_step=True, on_epoch=False, prog_bar = True, sync_dist = True)
-        self.log("Accuracy/val_acc_K5", self.val_accuracy_K5, on_step=True, on_epoch=False, prog_bar = True, sync_dist = True)
+        self.log("Accuracy/val_acc_K1", self.val_accuracy_K1, on_step=True, on_epoch=True, prog_bar = True, sync_dist = True)
+        self.log("Accuracy/val_acc_K3", self.val_accuracy_K3, on_step=True, on_epoch=True, prog_bar = True, sync_dist = True)
+        self.log("Accuracy/val_acc_K5", self.val_accuracy_K5, on_step=True, on_epoch=True, prog_bar = True, sync_dist = True)
     
     def validation_epoch_end(self, outputs):
         preds = torch.cat([tmp['preds'] for tmp in outputs])
@@ -153,27 +153,27 @@ class LTNClassifier(pl.LightningModule):
     
     def train_dataloader(self):
         loader = getEgoLoader(mode = 'train', 
-                              shuffle = True, 
+                              shuffle = False, 
                               siamese = False, 
                               focus = False, 
                               flo = False, 
                               img = True, 
                               low = -1, 
                               high = 1, 
-                              double_rots = True,
+                              double_rots = False,
                               truncate = self.truncate_train)
         return loader
         
     def val_dataloader(self):
         loader = getEgoLoader(mode = 'test', 
-                              shuffle = True, 
+                              shuffle = False, 
                               siamese = False, 
                               focus = False, 
                               flo = False, 
                               img = True, 
                               low = -1, 
                               high = 1, 
-                              double_rots = True,
+                              double_rots = False,
                               truncate = self.truncate_val)
         return loader
 

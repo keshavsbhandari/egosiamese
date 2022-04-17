@@ -25,18 +25,19 @@ if __name__ == '__main__':
     save_top_k=1,
     mode="min",)
     
-    early_stop_callback = EarlyStopping(monitor="Loss/val_loss_epoch", 
-                                        min_delta=1e-5, 
-                                        patience=5, 
-                                        verbose=True, 
-                                        mode="min")
+    # early_stop_callback = EarlyStopping(monitor="Loss/val_loss_epoch", 
+    #                                     min_delta=1e-5, 
+    #                                     patience=5, 
+    #                                     verbose=True, 
+    #                                     mode="min")
     
     trainer = Trainer(max_epochs = 1000, 
                       fast_dev_run = False, 
                       gpus = 8,  
                       accelerator = "ddp", 
                       num_nodes = 1, 
-                      callbacks=[checkpoint_callback,early_stop_callback],
+                      # callbacks=[checkpoint_callback,early_stop_callback],
+                      callbacks=[checkpoint_callback],
                       plugins=[DDPPlugin(find_unused_parameters=True)], 
                       reload_dataloaders_every_epoch=False,
                     #   log_every_n_steps = 1, 
@@ -44,6 +45,7 @@ if __name__ == '__main__':
                       )
     
     model = LTNClassifier()
-    # model.load_from_checkpoint("cache/SPATIAL_SIAMESE_CLASSIFIER-v2.ckpt")
+    model = model.load_from_checkpoint(f"cache/DEPTH_{DEPTH}_SPATIAL_SIAMESE_CLASSIFIER.ckpt")
     trainer.fit(model)
+    # trainer.validate(model)
     

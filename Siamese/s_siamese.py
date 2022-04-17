@@ -73,27 +73,27 @@ class LTNSiamese(pl.LightningModule):
     
     def train_dataloader(self):
         loader = getEgoLoader(mode = 'train', 
-                              shuffle = True, 
+                              shuffle = False, 
                               siamese = True, 
                               focus = False, 
                               flo = False, 
                               img = True, 
                               low = -1, 
                               high = 1, 
-                              double_rots = False,
+                              double_rots = True,
                               truncate = self.truncate_train)
         return loader
         
     def val_dataloader(self):
         loader = getEgoLoader(mode = 'test', 
-                              shuffle = True, 
+                              shuffle = False, 
                               siamese = True, 
                               focus = False, 
                               flo = False, 
                               img = True, 
                               low = -1, 
                               high = 1, 
-                              double_rots = False,
+                              double_rots = True,
                               truncate = self.truncate_val)
         return loader
 
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     mode="min",)
     
     trainer = Trainer(max_epochs = 1000, 
-                      fast_dev_run = False, 
+                      fast_dev_run = False,
                       gpus = 8,  
                       accelerator = "ddp", 
                       num_nodes = 1, 

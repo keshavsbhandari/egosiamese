@@ -115,6 +115,16 @@ class Stream(nn.Module):
                                            layer_norm_eps=layer_norm_eps, 
                                            batch_first=batch_first,
                                            )
+        
+        if FEATURE_AGGREGATOR:
+            self.encoder_feature_aggregator = TransformerEncoderLayer(d_model = ENC_SEQ_DIM, 
+                                           nhead = nhead//2, 
+                                           dim_feedforward=dim_feedforward//4, 
+                                           dropout=dropout, 
+                                           layer_norm_eps=layer_norm_eps, 
+                                           batch_first=batch_first,
+                                           )
+        
         self.fc = nn.Linear(in_features = 6*EMB_DIM, out_features=EMB_DIM)
     
     def forward(self, x, **kwargs):
@@ -155,6 +165,7 @@ class Stream(nn.Module):
         x = torch.nn.ReLU()(x)
         
         if FEATURE_AGGREGATOR:
+            f = self.encoder_feature_aggregator(f.permute(0,2,1)).permute(0,2,1)
             #f -> 4-128-6
             #x -> 4-128-768
             x = torch.einsum('ijk,ijm->ikm',f,x)

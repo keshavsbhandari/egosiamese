@@ -9,7 +9,7 @@ SC_SIAMESE_PATH = "cache/SPATIAL_SIAMESE_CLASSIFIER.ckpt"
 MC_PATH = "cache/MOTION_CLASSIFIER.ckpt"
 SC_PATH = "cache/SPATIAL_CLASSIFIER.ckpt"
 
-SINGLE_VIDEO_POLICY = True
+SINGLE_VIDEO_POLICY = False
 
 # minimum number of videos per subclass, the minimum number is 4
 BALANCE_VIDEOS = 10
