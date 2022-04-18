@@ -17,10 +17,20 @@ import random
 from imageio import imread
 import torch.distributed as dist
 import pickle
+import os
+from socket import gethostname
 
 R = lambda :random.choice((-random.random(), random.random()))
 
 import torch.distributed as dist
+
+def restrictPanda0Gpu():
+    if gethostname() == 'rainbow-panda':    
+        assert os.environ.get('CUDA_VISIBLE_DEVICES'), "CUDA visible devices is required for panda-server"
+        ids = os.environ.get('CUDA_VISIBLE_DEVICES').split(',')
+        '0' not in ids, "CUDA_VISIBLE_DEVICES must ignore 0th device, pass CUDA_VISIBLE_DEVICES=1,2,3"
+    return True
+skipZerothDeviceInPanda = restrictPanda0Gpu()
 
 def writeToPickle(data, filepath):
     with open(filepath, 'wb') as f:
