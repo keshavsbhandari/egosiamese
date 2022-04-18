@@ -1,7 +1,6 @@
 import torchvision.transforms as T
 import torch
-
-server = "TRENTO"
+import socket
 
 M_SIAMESE_PATH = "cache/DEPTH_10_MOTION_SIAMESE_BEST.ckpt"
 S_SIAMESE_PATH = "cache/DEPTH_10_SPATIAL_SIAMESE.ckpt"
@@ -314,5 +313,7 @@ TEST_LOADER_ARGS = dict(batch_size = 4,
                         prefetch_factor = 4,
                         persistent_workers = True,
                         )
-
-DATA_ROOT = "/data/keshav/360/finalEgok360/data/"
+if socket.gethostname() == 'rainbow-panda':   
+   DATA_ROOT = "/home/k_b459/DATA/data/"
+else:
+   DATA_ROOT = "/data/keshav/360/finalEgok360/data/"
