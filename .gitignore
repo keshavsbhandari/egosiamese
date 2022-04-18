@@ -3,3 +3,4 @@
 *.ipynb_checkpoints
 cache
 cache_
+lightning_logs

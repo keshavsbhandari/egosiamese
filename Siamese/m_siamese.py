@@ -8,6 +8,7 @@ import torch.nn as nn
 import numpy as np
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+import math
 
 from Model.model import *
 from Utils.egoloader import *
@@ -74,6 +75,53 @@ class LTNSiamese(pl.LightningModule):
         
         self.log("Loss/val_loss", loss, prog_bar = True, on_step=True, on_epoch=True, sync_dist=True)
         return {'val_loss':loss, 'log': {'Loss/val': loss}}
+    
+    def find_lr(self, init_value, final_value):
+        train_loader = self.train_dataloader()
+        number_in_epoch = len(train_loader) - 1
+        update_step = (final_value / init_value) ** (1 / number_in_epoch)
+        lr = init_value
+        optimizer = self.configure_optimizers().get('optimizer')
+        optimizer.param_groups[0]["lr"] = lr
+        best_loss = -1.0
+        batch_num = 0
+        losses = []
+        log_lrs = []
+        iterator = tqdm(train_loader, desc="Current lr=XX.XX Steps=XX Loss=XX.XX Best lr=XX.XX ")
+        for i, batch in enumerate(iterator):
+            batch_num += 1
+            x = batch[self.streamtype]
+            rots_1 = batch["rots_1"]
+            rots_2 = batch["rots_2"]
+            optimizer.zero_grad()
+            p1, p2, z1, z2 = self.model(x, rots_1 = rots_1, rots_2 = rots_2, mode = 'flo')
+            loss = simLoss(p1,p2,z1,z2)
+
+            # Crash out if loss explodes
+            # if batch_num > 1 and loss > 4 * best_loss:
+            #     print("CRASH OUT")
+            #     return log_lrs[10:-5], losses[10:-5]
+            # Record the best loss
+            if loss < best_loss or batch_num == 1:
+                best_loss = loss
+                best_lr = lr
+            # Do the backward pass and optimize
+            loss.backward()
+            optimizer.step()
+            iterator.set_description("Current lr=%5.9f Steps=%d Loss=%5.3f Best lr=%5.9f " %(lr, i, loss, best_lr))
+            # Store the values
+            losses.append(loss.detach())
+            log_lrs.append(math.log10(lr))
+            # Update the lr for the next step and store
+            lr = lr * update_step
+            optimizer.param_groups[0]["lr"] = lr
+        logs, losses = log_lrs[10:-5], losses[10:-5]
+
+        plt.plot(logs, losses)
+        plt.xlabel("learning rate (log scale)")
+        plt.ylabel("loss")
+        plt.savefig(f"{self.streamtype} - Optimal lr curve.png")
+        print("plot saved")
     
     def train_dataloader(self):
         loader = getEgoLoader(mode = 'train', 

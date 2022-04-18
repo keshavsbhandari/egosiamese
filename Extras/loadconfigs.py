@@ -1,8 +1,12 @@
 import torchvision.transforms as T
 import torch
 import socket
+import os
 
-M_SIAMESE_PATH = "cache/DEPTH_10_MOTION_SIAMESE_BEST.ckpt"
+N_DEVICE = len(os.environ['CUDA_VISIBLE_DEVICES'].split(',')) if socket.gethostname() == 'rainbow-panda' else 8
+SERVER = "PANDAS" if socket.gethostname() == 'rainbow-panda' else "TRENTO"
+
+M_SIAMESE_PATH = "cache/PANDAS_DEPTH_10_MOTION_SIAMESE.ckpt"
 S_SIAMESE_PATH = "cache/DEPTH_10_SPATIAL_SIAMESE.ckpt"
 MC_SIAMESE_PATH = "cache/MOTION_SIAMESE_CLASSIFIER.ckpt"
 SC_SIAMESE_PATH = "cache/SPATIAL_SIAMESE_CLASSIFIER.ckpt"
@@ -296,7 +300,7 @@ FLO_TRANSFORM = T.Compose([lambda x:torch.from_numpy(x).float()/255.0,
                            ],)
 
 
-TRAIN_LOADER_ARGS = dict(batch_size = 4,
+TRAIN_LOADER_ARGS = dict(batch_size = 16,
                          shuffle = True,
                          num_workers = 4,
                          pin_memory = True,
@@ -305,7 +309,7 @@ TRAIN_LOADER_ARGS = dict(batch_size = 4,
                          persistent_workers = True,
                          )
 
-TEST_LOADER_ARGS = dict(batch_size = 4,
+TEST_LOADER_ARGS = dict(batch_size = 16,
                         shuffle = False,
                         num_workers = 4,
                         pin_memory = True,

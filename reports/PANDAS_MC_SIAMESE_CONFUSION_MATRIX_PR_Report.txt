@@ -1,0 +1,51 @@
+                 precision    recall  f1-score   support
+
+     accelerate       0.00      0.00      0.00        28
+    at_computer       0.00      0.00      0.00        27
+    bounce_ball       0.00      0.00      0.00        34
+      breezeway       0.00      0.00      0.00        38
+       chalk_up       0.00      0.00      0.00        24
+    check_phone       0.00      0.00      0.00        86
+crossing_street       0.00      0.00      0.00        30
+     decelerate       0.00      0.00      0.00        39
+      desk_work       0.00      0.00      0.00        23
+        doorway       0.00      0.00      0.00        65
+    down_stairs       0.00      0.00      0.00        24
+       drinking       0.00      0.00      0.00        36
+        driving       0.00      0.00      0.00        19
+         eating       0.00      0.00      0.00        34
+     follow_obj       0.00      0.00      0.00        13
+        hallway       0.00      0.00      0.00        32
+            hit       0.00      0.00      0.00        31
+        leaning       0.00      0.00      0.00        92
+     looking_at       0.00      0.00      0.00        52
+        napping       0.00      0.00      0.00        30
+    office_talk       0.00      0.00      0.00        34
+       ordering       0.00      0.00      0.00        36
+    pickup_ball       0.00      0.00      0.00        33
+      ping-pong       0.00      0.00      0.00        38
+  playing_cards       0.00      0.00      0.00        42
+   playing_pool       0.00      0.00      0.00        26
+       put_card       0.00      0.00      0.00        48
+          reach       0.00      0.00      0.00        57
+        running       0.00      0.00      0.00        51
+          serve       0.00      0.00      0.00        29
+       shooting       0.00      0.00      0.00        25
+        shuffle       0.02      1.00      0.04        41
+       sit_down       0.00      0.00      0.00        21
+        sitting       0.00      0.00      0.00        28
+       stand_up       0.00      0.00      0.00        23
+       standing       0.00      0.00      0.00        97
+          still       0.00      0.00      0.00        27
+           stop       0.00      0.00      0.00        21
+      take_card       0.00      0.00      0.00        34
+    turn_around       0.00      0.00      0.00        62
+      turn_left       0.00      0.00      0.00       169
+     turn_right       0.00      0.00      0.00       196
+      up_stairs       0.00      0.00      0.00        35
+        walking       0.00      0.00      0.00        42
+        writing       0.00      0.00      0.00        32
+
+       accuracy                           0.02      2004
+      macro avg       0.00      0.02      0.00      2004
+   weighted avg       0.00      0.02      0.00      2004

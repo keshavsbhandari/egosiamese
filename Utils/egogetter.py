@@ -3,7 +3,7 @@ import numpy as np
 from pathlib import Path
 from tqdm import tqdm
 from Utils.utils import readFromPickle
-from Extras.loadconfigs import DEPTH, SINGLE_VIDEO_POLICY, BALANCE_VIDEOS, TRAIN_FROM_PICKLE
+from Extras.loadconfigs import DEPTH, SINGLE_VIDEO_POLICY, BALANCE_VIDEOS, TRAIN_FROM_PICKLE, SERVER, DATA_ROOT
 
 class VideoGetter(object):
     def __init__(self, 
@@ -84,6 +84,10 @@ class VideoGetter(object):
     
     def getSingleFrameSeqPerVideo(self, idx):
         frames = self.frames_list[idx]
+        if SERVER == 'PANDAS':
+            for i, frame in enumerate(frames):
+                frame = Path(frame.as_posix().replace("/data/keshav/360/finalEgok360/data/", DATA_ROOT))
+                frames[i] = frame
         data = self.getLabel(frames[0])
         data.update({'frame':frames, 'flow':[]})
         for frame in frames:
