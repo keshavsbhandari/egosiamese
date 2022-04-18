@@ -16,10 +16,20 @@ import torchvision.transforms as T
 import random
 from imageio import imread
 import torch.distributed as dist
+import pickle
 
 R = lambda :random.choice((-random.random(), random.random()))
 
 import torch.distributed as dist
+
+def writeToPickle(data, filepath):
+    with open(filepath, 'wb') as f:
+        pickle.dump(data, f)
+
+def readFromPickle(filepath):
+    with open(filepath, 'rb') as f:
+        data = pickle.load(f)
+    return data
 
 def sync_tensor_across_gpus(t):
     # t needs to have dim 0 for troch.cat below. 

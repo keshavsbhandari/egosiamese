@@ -45,7 +45,7 @@ if __name__ == '__main__':
                       )
     
     model = LTNClassifier()
-    model = model.load_from_checkpoint(f"cache/DEPTH_{DEPTH}_SPATIAL_SIAMESE_CLASSIFIER.ckpt")
+    model = model.load_from_checkpoint(f"cache/DEPTH_{DEPTH}_SPATIAL_SIAMESE_CLASSIFIER-v1.ckpt")
     trainer.fit(model)
     # trainer.validate(model)
     

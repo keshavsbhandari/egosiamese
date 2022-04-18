@@ -11,6 +11,7 @@ SC_PATH = "cache/SPATIAL_CLASSIFIER.ckpt"
 
 SINGLE_VIDEO_POLICY = False
 
+TRAIN_FROM_PICKLE = True
 # minimum number of videos per subclass, the minimum number is 4
 BALANCE_VIDEOS = 10
 

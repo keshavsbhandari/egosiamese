@@ -2,7 +2,8 @@ import random
 import numpy as np
 from pathlib import Path
 from tqdm import tqdm
-from Extras.loadconfigs import DEPTH, SINGLE_VIDEO_POLICY, BALANCE_VIDEOS
+from Utils.utils import readFromPickle
+from Extras.loadconfigs import DEPTH, SINGLE_VIDEO_POLICY, BALANCE_VIDEOS, TRAIN_FROM_PICKLE
 
 class VideoGetter(object):
     def __init__(self, 
@@ -17,11 +18,13 @@ class VideoGetter(object):
         self.spatial = [c/"frames" for c in self.content]
         self.motion = [f/"flows" for f in self.content]
         self.nwor = nwor
-        
-        if SINGLE_VIDEO_POLICY:    
-            self.frames_list = self.getSingleFramesPerVideo()[:truncate]
-        else:
-            self.frames_list = self.getFramesList()[:truncate]
+        if TRAIN_FROM_PICKLE:
+            self.frames_list = readFromPickle(f"Extras/{mode}.pkl")
+        else:    
+            if SINGLE_VIDEO_POLICY:    
+                self.frames_list = self.getSingleFramesPerVideo()[:truncate]
+            else:
+                self.frames_list = self.getFramesList()[:truncate]
         
         if shuffle:
             random.shuffle(self.frames_list)
@@ -122,6 +125,8 @@ class VideoGetter(object):
         return data
     
     def __getitem__(self, idx):
+        if TRAIN_FROM_PICKLE:
+            return self.getSingleFrameSeqPerVideo(idx)
         if SINGLE_VIDEO_POLICY:
             return self.getSingleFrameSeqPerVideo(idx)
         else:
