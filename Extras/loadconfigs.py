@@ -1,6 +1,8 @@
 import torchvision.transforms as T
 import torch
 
+server = "TRENTO"
+
 M_SIAMESE_PATH = "cache/DEPTH_10_MOTION_SIAMESE_BEST.ckpt"
 S_SIAMESE_PATH = "cache/DEPTH_10_SPATIAL_SIAMESE.ckpt"
 MC_SIAMESE_PATH = "cache/MOTION_SIAMESE_CLASSIFIER.ckpt"
