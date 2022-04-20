@@ -18,7 +18,9 @@ from Siamese.s_siamese import *
 from Extras.loadconfigs import (S_SIAMESE_PATH,
                                 S_NUM_CLASSES,
                                 S_LABELS_NAME,
-                                DEPTH
+                                DEPTH,
+                                LOW,
+                                HIGH
                                 )
 from torchmetrics.functional import confusion_matrix
 from sklearn.metrics import classification_report
@@ -70,7 +72,8 @@ class LTNClassifier(pl.LightningModule):
         y = batch['s_label']
         rots_1 = batch["rots_1"]
         prob, _ = self.model(x, softmax=True, rots_1 = rots_1, mode = 'img')
-        loss = torch.nn.CrossEntropyLoss()(prob, y)
+
+        loss = torch.nn.CrossEntropyLoss()(prob, y) + 1e-3*torch.norm(self.model.fc.weight, p = 1)
         
         self.log("Loss/train_loss", loss, prog_bar = True, on_step=True, on_epoch=True, sync_dist=True)
         return {'loss':loss,
@@ -95,7 +98,7 @@ class LTNClassifier(pl.LightningModule):
         rots_1 = batch["rots_1"]
         
         prob, _ = self.model(x, softmax=True, rots_1 = rots_1, mode = 'img')
-        loss = torch.nn.CrossEntropyLoss()(prob, y)
+        loss = torch.nn.CrossEntropyLoss()(prob, y) +  1e-3*torch.norm(self.model.fc.weight, p = 1)
         
         self.log("Loss/val_loss", loss, prog_bar = True, on_step=True, on_epoch=True, sync_dist=True)
         
@@ -173,7 +176,8 @@ class LTNClassifier(pl.LightningModule):
             optimizer.zero_grad()
 
             prob, _ = self.model(x, softmax=True, rots_1 = rots_1, mode = 'img')
-            loss = torch.nn.CrossEntropyLoss()(prob, labels)
+
+            loss = torch.nn.CrossEntropyLoss()(prob, y) +  1e-3*torch.norm(self.model.fc.weight, p = 1)
 
             # Crash out if loss explodes
             if batch_num > 1 and loss > 4 * best_loss:
@@ -207,8 +211,8 @@ class LTNClassifier(pl.LightningModule):
                               focus = False, 
                               flo = False, 
                               img = True, 
-                              low = -1, 
-                              high = 1, 
+                              low = LOW, 
+                              high = HIGH, 
                               double_rots = False,
                               truncate = self.truncate_train)
         return loader
@@ -220,7 +224,7 @@ class LTNClassifier(pl.LightningModule):
                               focus = False, 
                               flo = False, 
                               img = True, 
-                              low = -1, 
+                              low = -1,
                               high = 1, 
                               double_rots = False,
                               truncate = self.truncate_val)

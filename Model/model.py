@@ -19,18 +19,23 @@ class PatchWiseFeatureAggregator(nn.Module):
     def __init__(self, in_channels = 3, depth = 10):
         super(PatchWiseFeatureAggregator, self).__init__()
         self.patchFeatures = nn.Sequential(nn.Conv3d(in_channels=in_channels, out_channels=8, kernel_size=(1,1,1)),
-                                           nn.ReLU(inplace=True),
+                                           nn.LeakyReLU(inplace=True),#use leaky LeakyReLU, batchnormalization
+                                           nn.BatchNorm3d(8, track_running_stats=False),
                                            nn.Conv3d(in_channels=8, out_channels=16, kernel_size=(depth,3,3)),
-                                           nn.ReLU(inplace=True),
+                                           nn.LeakyReLU(inplace=True),
+                                           nn.BatchNorm3d(16, track_running_stats=False),
                                            nn.MaxPool3d(kernel_size=(1,3,3), stride = (1,2,2)),
                                            nn.Conv3d(in_channels=16, out_channels=32, kernel_size=(1,3,3)),
-                                           nn.ReLU(inplace=True),
+                                           nn.LeakyReLU(inplace=True),
+                                           nn.BatchNorm3d(32, track_running_stats=False),
                                            nn.MaxPool3d(kernel_size=(1,3,3), stride = (1,2,2)),
                                            nn.Conv3d(in_channels=32, out_channels=64, kernel_size=(1,3,3)),
-                                           nn.ReLU(inplace=True),
+                                           nn.LeakyReLU(inplace=True),
+                                           nn.BatchNorm3d(64, track_running_stats=False),
                                            nn.MaxPool3d(kernel_size=(1,3,3), stride = (1,2,2)),
                                            nn.Conv3d(in_channels=64, out_channels=ENC_SEQ_DIM, kernel_size=(1,1,1)),
-                                           nn.ReLU(inplace=True),
+                                           nn.BatchNorm3d(ENC_SEQ_DIM, track_running_stats=False),
+                                           nn.LeakyReLU(inplace=True),
                                            nn.MaxPool3d(kernel_size=(1,5,5)),
                                            nn.Flatten())
     def forward(self, x):
@@ -187,13 +192,15 @@ class Siamese(nn.Module):
                             nn.BatchNorm1d(prev_dim),
                             nn.ReLU(inplace=True), # second layer
                             self.encoder.fc,
+                            nn.Dropout(0.5),
                             nn.BatchNorm1d(EMB_DIM, affine=False)) # output layer
         # self.encoder.fc[6].bias.requires_grad = False # hack: not use bias as it is followed by BN
         # build 2-layer predictor
         self.predictor = nn.Sequential(nn.Linear(EMB_DIM, pred_dim, bias = False),
                                    nn.BatchNorm1d(pred_dim),
                                    nn.ReLU(inplace=True),
-                                   nn.Linear(pred_dim, EMB_DIM))
+                                   nn.Linear(pred_dim, EMB_DIM),
+                                   nn.Dropout(0.5))
     def forward(self, x, **kwargs):
         # PRE-PROCESSING STARTED | INSIDE FORWARD FOR CUDA ACCELERATION
         if kwargs.get('rots_2'):

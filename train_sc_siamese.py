@@ -19,7 +19,7 @@ from Extras.loadconfigs import DEPTH,N_DEVICE, SERVER
 
 if __name__ == '__main__':
     checkpoint_callback = ModelCheckpoint(
-    monitor="Loss/val_loss_epoch",
+    monitor="Accuracy/val_acc_K1_epoch",
     dirpath="cache",
     filename=f"{SERVER}_DEPTH_{DEPTH}_SPATIAL_SIAMESE_CLASSIFIER",
     save_top_k=1,
@@ -45,7 +45,8 @@ if __name__ == '__main__':
                       )
     
     model = LTNClassifier()
-    model = model.load_from_checkpoint(f"cache/PANDAS_DEPTH_10_MOTION_SIAMESE.ckpt")
+    # model.find_lr(1e-1, 1e-6)
+    model = model.load_from_checkpoint(f"cache/PANDAS_DEPTH_10_SPATIAL_SIAMESE_CLASSIFIER.ckpt")
     trainer.fit(model)
     # trainer.validate(model)
     

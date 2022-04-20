@@ -2,12 +2,17 @@ import torchvision.transforms as T
 import torch
 import socket
 import os
+import numpy as np
+
+#ROTATION CONFIGS
+LOW = -1
+HIGH = 1
 
 N_DEVICE = len(os.environ['CUDA_VISIBLE_DEVICES'].split(',')) if socket.gethostname() == 'rainbow-panda' else 8
 SERVER = "PANDAS" if socket.gethostname() == 'rainbow-panda' else "TRENTO"
 
 M_SIAMESE_PATH = "cache/PANDAS_DEPTH_10_MOTION_SIAMESE.ckpt"
-S_SIAMESE_PATH = "cache/DEPTH_10_SPATIAL_SIAMESE.ckpt"
+S_SIAMESE_PATH = "cache/PANDAS_DEPTH_10_SPATIAL_SIAMESE.ckpt"
 MC_SIAMESE_PATH = "cache/MOTION_SIAMESE_CLASSIFIER.ckpt"
 SC_SIAMESE_PATH = "cache/SPATIAL_SIAMESE_CLASSIFIER.ckpt"
 
@@ -18,7 +23,7 @@ SINGLE_VIDEO_POLICY = False
 
 TRAIN_FROM_PICKLE = True
 # minimum number of videos per subclass, the minimum number is 4
-BALANCE_VIDEOS = 10
+BALANCE_VIDEOS = 0
 
 FEATURE_AGGREGATOR = True
 

@@ -5,7 +5,7 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.plugins import DDPPlugin
 
 from Classifier.mc import *
-from Extras.loadconfigs import DEPTH
+from Extras.loadconfigs import DEPTH, SERVER
 
 if __name__ == '__main__':
     checkpoint_callback = ModelCheckpoint(
@@ -17,7 +17,7 @@ if __name__ == '__main__':
     
     trainer = Trainer(max_epochs = 1000, 
                       fast_dev_run = False, 
-                      gpus = 8,  
+                      gpus = N_DEVICE,  
                       accelerator = "ddp", 
                       num_nodes = 1, 
                       callbacks=[checkpoint_callback],

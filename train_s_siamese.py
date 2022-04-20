@@ -15,13 +15,13 @@ from Utils.utils import *
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 from Siamese.s_siamese import *
-from Extras.loadconfigs import DEPTH
+from Extras.loadconfigs import DEPTH, N_DEVICE, SERVER
 
 if __name__ == '__main__':
     checkpoint_callback = ModelCheckpoint(
     monitor="Loss/val_loss_epoch",
     dirpath="cache",
-    filename=f"DEPTH_{DEPTH}_SPATIAL_SIAMESE",
+    filename=f"{SERVER}_DEPTH_{DEPTH}_SPATIAL_SIAMESE",
     save_top_k=1,
     mode="min",)
     
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     
     trainer = Trainer(max_epochs = 1000, 
                       fast_dev_run = False, 
-                      gpus = 8,  
+                      gpus = N_DEVICE,  
                       accelerator = "ddp", 
                       num_nodes = 1, 
                       callbacks=[checkpoint_callback, early_stop_callback],

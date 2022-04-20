@@ -24,6 +24,11 @@ R = lambda :random.choice((-random.random(), random.random()))
 
 import torch.distributed as dist
 
+def l1_penalty(params, l1_lambda=0.001):
+    """Returns the L1 penalty of the params."""
+    l1_norm = sum(p.abs().sum() for p in params)
+    return l1_lambda*l1_norm
+
 def restrictPanda0Gpu():
     if gethostname() == 'rainbow-panda':    
         assert os.environ.get('CUDA_VISIBLE_DEVICES'), "CUDA visible devices is required for panda-server"

@@ -18,13 +18,17 @@ class VideoGetter(object):
         self.spatial = [c/"frames" for c in self.content]
         self.motion = [f/"flows" for f in self.content]
         self.nwor = nwor
-        if TRAIN_FROM_PICKLE:
-            self.frames_list = readFromPickle(f"Extras/{mode}.pkl")
+        self.mode = mode
+        if mode == 'train':
+            self.frames_list = self.getFramesList()[:truncate]
         else:    
-            if SINGLE_VIDEO_POLICY:    
-                self.frames_list = self.getSingleFramesPerVideo()[:truncate]
-            else:
-                self.frames_list = self.getFramesList()[:truncate]
+            if TRAIN_FROM_PICKLE:
+                self.frames_list = readFromPickle(f"Extras/{mode}.pkl")
+            else:    
+                if SINGLE_VIDEO_POLICY:    
+                    self.frames_list = self.getSingleFramesPerVideo()[:truncate]
+                else:
+                    self.frames_list = self.getFramesList()[:truncate]
         
         if shuffle:
             random.shuffle(self.frames_list)
@@ -129,6 +133,9 @@ class VideoGetter(object):
         return data
     
     def __getitem__(self, idx):
+        if self.mode == 'train':
+            return self.getMultiFrameSeqPerVideo(idx)
+        
         if TRAIN_FROM_PICKLE:
             return self.getSingleFrameSeqPerVideo(idx)
         if SINGLE_VIDEO_POLICY:
