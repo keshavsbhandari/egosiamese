@@ -55,7 +55,7 @@ class PerspectivePatch(nn.Module):
                                 )
             self.norm = torch.nn.BatchNorm2d(EMB_DIM, eps=1e-05, momentum=0.1, affine=True)
         
-        self.act = nn.ReLU()
+        self.act = nn.LeakyReLU()
     
     def forward(self, x):
         x = self.patcher(x)
@@ -101,6 +101,7 @@ class Stream(nn.Module):
             self.patchFeatures = PatchWiseFeatureAggregator(in_channels = in_channels, depth = DEPTH)
         self.posEncoding = PositionalEncoding(d_model=EMB_DIM)
         self.patcher = PerspectivePatch(in_channels=in_channels)
+        
         self.encoder_1 = TransformerEncoderLayer(d_model = EMB_DIM, 
                                            nhead = nhead, 
                                            dim_feedforward=dim_feedforward, 
